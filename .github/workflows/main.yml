@@ -7,6 +7,9 @@ on:
   pull_request:
     branches:
       - master
+env: 
+  AZURE_WEBAPP_NAME: scorercertificates
+  AZURE_WEBAPP_PACKAGE_PATH: "./publish"
 
 jobs:
   build:
@@ -28,5 +31,13 @@ jobs:
       run: dotnet build --configuration Release
 
     - name: Publish
-      run: dotnet publish --configuration Release --output ./publish
+      run: dotnet publish --configuration Release --output '${{ AZURE_WEBAPP_PACKAGE_PATH }}'
+      
+    - name: Deployment
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: ${{ env.AZURE_WEBAPP_NAME }}
+        publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
+        package: "${{ env.AZURE_WEBAPP_PACKAGE_PATH }}"
+        
 
